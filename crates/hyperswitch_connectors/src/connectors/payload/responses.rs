@@ -1,3 +1,4 @@
+use common_enums::Currency;
 use masking::Secret;
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +19,20 @@ pub enum PayloadPaymentStatus {
 #[serde(untagged)]
 pub enum PayloadPaymentsResponse {
     PayloadCardsResponse(PayloadCardsResponseData),
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct PaymentReceipt {
+    pub approved_amount: ApprovedAmount,
+    pub processor_response_details: Option<ProcessorResponseDetails>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ApprovedAmount {
+    pub total: f64,
+    pub currency: Currency,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -83,15 +98,79 @@ pub struct PayloadRefundResponse {
     pub status: RefundStatus,
     pub status_code: Option<String>,
     pub status_message: Option<String>,
+    pub payment_receipt: PaymentReceipt,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, PartialEq)]
 pub struct PayloadErrorResponse {
-    pub error_type: String,
-    pub error_description: String,
-    pub object: String,
-    /// Payload returns arbitrary details in JSON format
-    pub details: Option<serde_json::Value>,
+    pub error: Option<Vec<PayloadErrorDetails>>,
+}
+
+#[derive(Default, Debug, Serialize, Deserialize, PartialEq)]
+pub struct PayloadErrorDetails {
+    #[serde(rename = "type")]
+    pub error_type: Option<String>,
+    pub code: Option<String>,
+    pub field: Option<String>,
+    pub message: Option<String>,
+    pub additional_info: Option<String>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ProcessorResponseDetails {
+    pub approval_status: Option<String>,
+    pub approval_code: Option<String>,
+    pub reference_number: Option<String>,
+    pub processor: Option<String>,
+    pub host: Option<String>,
+    pub network_routed: Option<String>,
+    pub network_international_id: Option<String>,
+    pub response_code: Option<String>,
+    pub response_message: Option<String>,
+    pub host_response_code: Option<String>,
+    pub host_response_message: Option<String>,
+    pub additional_info: Option<Vec<AdditionalInfo>>,
+    pub bank_association_details: Option<BankAssociationDetails>,
+    pub response_indicators: Option<ResponseIndicators>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct AdditionalInfo {
+    pub name: Option<String>,
+    pub value: Option<String>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct BankAssociationDetails {
+    pub association_response_code: Option<String>,
+    pub avs_security_code_response: Option<AvsSecurityCodeResponse>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct AvsSecurityCodeResponse {
+    pub street_match: Option<String>,
+    pub postal_code_match: Option<String>,
+    pub security_code_match: Option<String>,
+    pub association: Option<Association>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Association {
+    pub avs_code: Option<String>,
+    pub security_code_response: Option<String>,
+}
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ResponseIndicators {
+    pub alternate_route_debit_indicator: Option<bool>,
+    pub signature_line_indicator: Option<bool>,
+    pub signature_debit_route_indicator: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

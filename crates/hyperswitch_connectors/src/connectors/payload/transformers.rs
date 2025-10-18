@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use api_models::webhooks::IncomingWebhookEvent;
-use common_enums::enums;
+use common_enums::{enums, Currency};
 use common_utils::{ext_traits::ValueExt, types::StringMajorUnit};
 use error_stack::ResultExt;
 use hyperswitch_domain_models::{
